@@ -1,7 +1,6 @@
 import os
 import pandas as pd
 from torch.utils.data import Dataset
-from torchvision.transforms import Lambda
 
 class CustomImageDataset(Dataset):
     def __init__(self,
