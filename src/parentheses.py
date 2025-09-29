@@ -61,12 +61,24 @@ def replace_random_parentheses(parentheses_string: str) -> tuple[str,str]:
     deleted_parentheses = parentheses_string[index]
     return (parentheses_string[:index] + '?' + parentheses_string[index + 1:],deleted_parentheses)
 
-def generate_testcase_with_deletion(number_of_entries: int, max_depth: int = MAX_STACK_DEPTH, max_length: int = MAX_STRING_LENGTH) -> tuple[str,str]:
+def generate_testcase_with_deletion( max_depth: int = MAX_STACK_DEPTH, max_length: int = MAX_STRING_LENGTH) -> tuple[str,str]:
     """
     Function to generate a balanced parentheses string and then delete a random parentheses.
     """
     balanced_string = generate_balanced_parentheses(max_depth, max_length)
     return replace_random_parentheses(balanced_string)
+
+def generate_testdata_set_with_deletions(number_of_entries: int,
+                                         path: str,
+                                         max_depth: int = MAX_STACK_DEPTH,
+                                         max_length: int = MAX_STRING_LENGTH,)-> list[tuple[str,str]]:
+    """
+    Function to generate a dataset of balanced parentheses strings with random deletions.
+    """
+    with open(path, "w", encoding="utf-8") as f:
+        for _ in range(number_of_entries):
+            test_case, deleted_parentheses = generate_testcase_with_deletion(max_depth, max_length)
+            f.write(f"{test_case},{deleted_parentheses}\n")
 
 vocab = {'(':0, ')':1, '[':2, ']':3, '{':4, '}':5, '?':6}
 inv_vocab = {v:k for k,v in vocab.items()}
@@ -75,4 +87,4 @@ def tokenize(seq):
     return [vocab[c] for c in seq]
 
 if __name__ == "__main__":
-    test_generate_balanced_parentheses()
+    generate_testdata_set_with_deletions(100000,"belief-state-geometry-in-the-residual-stream/src/data/testdata/test_?_data.txt")

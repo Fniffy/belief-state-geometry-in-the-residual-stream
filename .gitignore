@@ -20,4 +20,6 @@ target
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-venv/
+.venv/
+
+belief-state-geometry-in-the-residual-stream/src/data/trainingdata/trainingdata.txt
