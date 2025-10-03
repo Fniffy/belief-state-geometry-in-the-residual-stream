@@ -107,5 +107,5 @@ def tokenize(seq):
     return [vocab[c] for c in seq]
 
 if __name__ == "__main__":
-    generate_testdata_set_with_cut(10000,"belief-state-geometry-in-the-residual-stream/src/data/trainingdata/training_?_paranthesees.txt")
-    generate_testdata_set_with_cut(10000,"belief-state-geometry-in-the-residual-stream/src/data/testdata/test_?_data.txt")
+    generate_testdata_set_with_cut(5000,"belief-state-geometry-in-the-residual-stream/src/data/trainingdata/training_?_paranthesees.txt")
+    generate_testdata_set_with_cut(5000,"belief-state-geometry-in-the-residual-stream/src/data/testdata/test_?_data.txt")

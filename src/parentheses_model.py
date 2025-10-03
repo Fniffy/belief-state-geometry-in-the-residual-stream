@@ -41,23 +41,32 @@ class ResidualParenthesesModel(nn.Module):
     def forward(self, x):
         # x: [batch, seq_len]
         x = self.embedding(x)  # [batch, seq_len, embedding_dim]
+        print(x)
         h = x
-        h_array = []
+        h_array = [h]
         for layer in self.layers:
-            h_array.append(h)
             h = h + layer(h)
-        h_array.append(h) # last residual stream
+            h_array.append(h)
         self.last_residual_stream = h_array
         logits = self.fc_out(h)  # [batch, seq_len, num_tokens]
         return logits
+    
+    def string_to_output(self, input_string: str) -> str:
+        input_vector = torch.tensor([MAPPING[c] for c in input_string], dtype=torch.long).unsqueeze(0)  # [1, seq_len]
+        output = self(input_vector)  # [1, seq_len, num_tokens]
+        pred_indices = (output.argmax(dim=-1).squeeze()).tolist()  # [seq_len]
+        if type(pred_indices) == int:
+            pred_indices = [pred_indices]  # Ensure it's a list
+        predicted_string = ''.join([INV_MAPPING[idx] for idx in pred_indices])
+        return predicted_string
     
 if __name__ == "__main__":
     if TRAINING:
         
         model = ResidualParenthesesModel()
-        if Path(CUT_PARENTHESES_MODEL).exists():
-            model.load_state_dict(torch.load(CUT_PARENTHESES_MODEL))
-            print("loaded existing model weights")
+        #if Path(CUT_PARENTHESES_MODEL).exists():
+        #    model.load_state_dict(torch.load(CUT_PARENTHESES_MODEL))
+        #    print("loaded existing model weights")
         criterion = nn.CrossEntropyLoss(ignore_index=0)  # 0 is padding
         optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 
@@ -93,7 +102,6 @@ if __name__ == "__main__":
                     test_loss += loss.item()
             print(f"Test Loss: {test_loss/len(test_dataloader):.4f}")
             model.train()
-
         torch.save(model.state_dict(), CUT_PARENTHESES_MODEL)
         print("Model saved.")   
         
@@ -106,18 +114,11 @@ if __name__ == "__main__":
             print("No model weights found, exiting.")
             exit(1)
         model.eval()
+        INV_MAPPING = {v: k for k, v in MAPPING.items()}
         while True:
             try:
                 user_input = input("Enter parentheses everything else exits the loop: ")
-                parentheses_string = user_input.strip()+ '_'*(MAX_STRING_LENGTH*2 - len(user_input.strip()))
-                parentheses_vector = torch.tensor([MAPPING[c] for c in parentheses_string], dtype=torch.float)
-                output = model(parentheses_vector.unsqueeze(0).long())
-                # After output = model(parentheses_vector.unsqueeze(0).long())
-                pred_indices = output.argmax(dim=-1).squeeze().tolist()  # list of predicted token indices
-                # Convert indices back to characters using inverse mapping
-                INV_MAPPING = {v: k for k, v in MAPPING.items()}
-                predicted_string = ''.join([INV_MAPPING[idx] for idx in pred_indices if INV_MAPPING[idx] == ')'])
-                print(f"Predicted closing parentheses: {predicted_string}")
+                print(f"Predicted closing parentheses: {model.string_to_output(user_input)}")
             except ValueError:
                 print("eval phase stopped")
                 break
