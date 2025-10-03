@@ -74,7 +74,7 @@ def generate_testcase_with_cut( max_depth: int = MAX_STACK_DEPTH, max_length: in
     balanced_string = generate_balanced_parentheses(max_depth, max_length)
     cut_string = balanced_string[:-np.random.randint(0, min(len(balanced_string),MAX_CUT))]
     depth = check_current_depth(cut_string)
-    return (cut_string  , ")" * depth + "?")
+    return (cut_string  , ")" * depth)
 
 def generate_testdata_set_with_deletion(number_of_entries: int,
                                          path: str,
@@ -96,9 +96,10 @@ def generate_testdata_set_with_cut(number_of_entries: int,
     Function to generate a dataset of balanced parentheses strings with random deletions.
     """
     with open(path, "w", encoding="utf-8") as f:
+        f.write(f"feature,label")
         for _ in range(number_of_entries):
             test_case, deleted_parentheses = generate_testcase_with_cut(max_depth, max_length)
-            f.write(f"{test_case},{deleted_parentheses}\n")
+            f.write(f"\n{test_case},{deleted_parentheses}")
 
 vocab = {'(':0, ')':1, '[':2, ']':3, '{':4, '}':5, '?':6}
 inv_vocab = {v:k for k,v in vocab.items()}
@@ -107,5 +108,5 @@ def tokenize(seq):
     return [vocab[c] for c in seq]
 
 if __name__ == "__main__":
-    generate_testdata_set_with_cut(5000,"belief-state-geometry-in-the-residual-stream/src/data/trainingdata/training_?_paranthesees.txt")
-    generate_testdata_set_with_cut(5000,"belief-state-geometry-in-the-residual-stream/src/data/testdata/test_?_data.txt")
+    generate_testdata_set_with_cut(5000,"belief-state-geometry-in-the-residual-stream/src/data/trainingdata/training_?_paranthesees.csv")
+    generate_testdata_set_with_cut(5000,"belief-state-geometry-in-the-residual-stream/src/data/testdata/test_?_data.csv")

@@ -16,7 +16,7 @@ EPOCHS = 500
 LAYERS = 2
 DIM_FEEDFORWARD = 256
 DROPOUT = 0.1
-TRAINING = False
+TRAINING = True
 EMBEDDING_DIMENSION = 128
 CUT_PARENTHESES_MODEL = "belief-state-geometry-in-the-residual-stream/models/model_weights.pth"
 
