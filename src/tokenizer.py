@@ -37,11 +37,10 @@ def get_hf_tokenizer():
             unk_token="[UNK]",
             pad_token="[PAD]"
         )
-
         hf_tokenizer.save_pretrained("./char_tokenizer")
-    else:
-        hf_tokenizer = PreTrainedTokenizerFast.from_pretrained("./char_tokenizer")
         
+    return PreTrainedTokenizerFast.from_pretrained("./char_tokenizer")
+
 if __name__ == "__main__":
     hf_tokenizer = get_hf_tokenizer()
     print("Tokenizer is ready.")
