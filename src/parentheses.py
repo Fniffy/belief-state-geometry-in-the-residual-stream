@@ -5,7 +5,8 @@ This module provides a generator function for producing balanced parentheses str
 and includes a test function to demonstrate its usage 
 and a function that checks if the next character is a closed parentheses or End Character.
 """
-
+import random
+import math
 import numpy as np
 from constants import *
 
@@ -20,13 +21,11 @@ def generate_balanced_parentheses(max_depth: int = MAX_STACK_DEPTH, max_length: 
         str: A balanced parentheses string.
     """
     return_string = "()"
-    depth = 0
-    for _ in range(int(np.random.randint(0, max_length - 2))):
+    for _ in range(math.floor(random.triangular(2, max_length - 1,max_length - 1))):
         index = int(np.random.randint(0, len(return_string) - 1))
         while check_current_depth(return_string[:index]) >= max_depth:  #slow but works
             index = int(np.random.randint(0, len(return_string) - 1))
         return_string = return_string[:index + 1] + "()" + return_string[index + 1:]
-    return_string += ')'*depth  # Close any remaining open parentheses
     return return_string
 
 def test_generate_balanced_parentheses():
@@ -68,7 +67,16 @@ def generate_testcase_with_deletion( max_depth: int = MAX_STACK_DEPTH, max_lengt
     balanced_string = generate_balanced_parentheses(max_depth, max_length)
     return replace_random_parentheses(balanced_string)
 
-def generate_testdata_set_with_deletions(number_of_entries: int,
+def generate_testcase_with_cut( max_depth: int = MAX_STACK_DEPTH, max_length: int = MAX_STRING_LENGTH) -> tuple[str,str]:
+    """
+    Function to generate a balanced parentheses string and then delete a random parentheses.
+    """
+    balanced_string = generate_balanced_parentheses(max_depth, max_length)
+    cut_string = balanced_string[:-np.random.randint(0, min(len(balanced_string),MAX_CUT))]
+    depth = check_current_depth(cut_string)
+    return (cut_string  , ")" * depth + "?")
+
+def generate_testdata_set_with_deletion(number_of_entries: int,
                                          path: str,
                                          max_depth: int = MAX_STACK_DEPTH,
                                          max_length: int = MAX_STRING_LENGTH,)-> list[tuple[str,str]]:
@@ -79,6 +87,18 @@ def generate_testdata_set_with_deletions(number_of_entries: int,
         for _ in range(number_of_entries):
             test_case, deleted_parentheses = generate_testcase_with_deletion(max_depth, max_length)
             f.write(f"{test_case},{deleted_parentheses}\n")
+            
+def generate_testdata_set_with_cut(number_of_entries: int,
+                                         path: str,
+                                         max_depth: int = MAX_STACK_DEPTH,
+                                         max_length: int = MAX_STRING_LENGTH,)-> list[tuple[str,str]]:
+    """
+    Function to generate a dataset of balanced parentheses strings with random deletions.
+    """
+    with open(path, "w", encoding="utf-8") as f:
+        for _ in range(number_of_entries):
+            test_case, deleted_parentheses = generate_testcase_with_cut(max_depth, max_length)
+            f.write(f"{test_case},{deleted_parentheses}\n")
 
 vocab = {'(':0, ')':1, '[':2, ']':3, '{':4, '}':5, '?':6}
 inv_vocab = {v:k for k,v in vocab.items()}
@@ -87,4 +107,5 @@ def tokenize(seq):
     return [vocab[c] for c in seq]
 
 if __name__ == "__main__":
-    generate_testdata_set_with_deletions(100000,"belief-state-geometry-in-the-residual-stream/src/data/testdata/test_?_data.txt")
+    generate_testdata_set_with_cut(10000,"belief-state-geometry-in-the-residual-stream/src/data/trainingdata/training_?_paranthesees.txt")
+    generate_testdata_set_with_cut(10000,"belief-state-geometry-in-the-residual-stream/src/data/testdata/test_?_data.txt")
